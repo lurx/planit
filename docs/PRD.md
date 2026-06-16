@@ -1,8 +1,8 @@
-# Product Requirement Document (PRD): ScribbleSync
+# Product Requirement Document (PRD): Planit
 
 ## 1. Executive Summary & Goals
 
-ScribbleSync is a real-time, collaborative digital whiteboard application designed to let distributed teams brainstorm, map out workflows, and collaborate visually.
+Planit is a real-time, collaborative digital whiteboard application designed to let distributed teams brainstorm, map out workflows, and collaborate visually.
 
 ### Architectural Goals (The "Why" for your Portfolio)
 
