@@ -17,6 +17,11 @@ next-env.d.ts
 # Turborepo
 .turbo/
 
+# Playwright
+playwright-report/
+test-results/
+/apps/web/playwright/.cache/
+
 # Production
 *.tsbuildinfo
 next-env.d.ts
