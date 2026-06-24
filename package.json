@@ -1,0 +1,22 @@
+{
+  "name": "planit",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.15.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "e2e": "turbo e2e"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.0",
+    "turbo": "^2.9.18",
+    "typescript": "^6.0.3"
+  }
+}

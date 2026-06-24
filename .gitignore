@@ -12,6 +12,10 @@ coverage/
 out/
 build/
 dist/
+next-env.d.ts
+
+# Turborepo
+.turbo/
 
 # Production
 *.tsbuildinfo
