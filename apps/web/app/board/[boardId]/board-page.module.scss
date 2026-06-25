@@ -1,38 +1,6 @@
 .board {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
+  position: relative;
+  inline-size: 100vw;
+  block-size: 100vh;
   overflow: hidden;
-}
-
-.placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 2rem 3rem;
-  border: 1px dashed #334155;
-  border-radius: 0.75rem;
-  background: var(--color-surface);
-}
-
-.label {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: #94a3b8;
-}
-
-.id {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-accent);
-}
-
-.hint {
-  margin: 0;
-  font-size: 0.875rem;
-  color: #64748b;
 }

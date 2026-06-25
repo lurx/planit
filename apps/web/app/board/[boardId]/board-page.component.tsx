@@ -1,15 +1,38 @@
+'use client';
+
+import { BoardDoc, createArrow, createEllipse, createRect } from '@planit/shared';
+import { useMemo } from 'react';
+
+import { BoardCanvas } from '@/canvas/board-canvas';
+
 import type { BoardPageProps } from './board-page.types';
 
 import styles from './board-page.module.scss';
 
 export function BoardPage({ boardId }: BoardPageProps) {
+  const board = useMemo(() => {
+    const doc = new BoardDoc();
+    // Temporary seed shapes so the canvas has something to show until creation tools (T3.2).
+    doc.addShape(
+      createRect({
+        id: `${boardId}-rect`,
+        x: 120,
+        y: 120,
+        width: 220,
+        height: 130,
+        text: 'Planit',
+      }),
+    );
+    doc.addShape(
+      createEllipse({ id: `${boardId}-ellipse`, x: 420, y: 160, width: 160, height: 160 }),
+    );
+    doc.addShape(createArrow({ id: `${boardId}-arrow`, x1: 360, y1: 360, x2: 540, y2: 420 }));
+    return doc;
+  }, [boardId]);
+
   return (
     <main className={styles.board} data-testid="board-page">
-      <div className={styles.placeholder}>
-        <span className={styles.label}>Board</span>
-        <code className={styles.id}>{boardId}</code>
-        <p className={styles.hint}>Canvas engine lands in Milestone 2.</p>
-      </div>
+      <BoardCanvas board={board} />
     </main>
   );
 }
