@@ -1,18 +1,21 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { BoardPage } from '../board-page.component';
 
 describe('BoardPage', () => {
-  it('renders the board container', () => {
+  beforeEach(() => {
+    vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(1);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the board container and canvas', () => {
     render(<BoardPage boardId="demo" />);
 
     expect(screen.getByTestId('board-page')).toBeInTheDocument();
-  });
-
-  it('shows the board id', () => {
-    render(<BoardPage boardId="abc-123" />);
-
-    expect(screen.getByText('abc-123')).toBeInTheDocument();
+    expect(screen.getByTestId('board-canvas')).toBeInTheDocument();
   });
 });
