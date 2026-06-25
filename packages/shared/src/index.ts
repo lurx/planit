@@ -5,4 +5,6 @@
  * that `apps/web` and (later) `apps/ws` import byte-identical definitions.
  */
 
+export * from './camera';
+export * from './geometry';
 export * from './shapes';
