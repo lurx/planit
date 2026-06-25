@@ -2,10 +2,12 @@ import { describe, expect, it } from 'vitest';
 
 import type { Rect } from '../geometry.types';
 import {
+  getEnclosingRect,
   getResizeHandles,
   pointInEllipse,
   pointInRect,
   pointNearSegment,
+  rectContainsRect,
   rectsIntersect,
 } from '../geometry.util';
 
@@ -100,6 +102,41 @@ describe('rectsIntersect', () => {
     ['b above a', { x: 0, y: -20, width: 10, height: 10 }],
   ])('returns false when %s', (_case, other) => {
     expect(rectsIntersect(UNIT_RECT, other)).toBe(false);
+  });
+});
+
+describe('rectContainsRect', () => {
+  it('returns true when inner sits fully inside outer (edges inclusive)', () => {
+    expect(rectContainsRect(UNIT_RECT, { x: 0, y: 0, width: 100, height: 100 })).toBe(true);
+    expect(rectContainsRect(UNIT_RECT, { x: 10, y: 10, width: 10, height: 10 })).toBe(true);
+  });
+
+  it.each([
+    ['past left', { x: -1, y: 10, width: 10, height: 10 }],
+    ['past top', { x: 10, y: -1, width: 10, height: 10 }],
+    ['past right', { x: 95, y: 10, width: 10, height: 10 }],
+    ['past bottom', { x: 10, y: 95, width: 10, height: 10 }],
+  ])('returns false when inner extends %s', (_case, inner) => {
+    expect(rectContainsRect(UNIT_RECT, inner)).toBe(false);
+  });
+});
+
+describe('getEnclosingRect', () => {
+  it('returns null for an empty list', () => {
+    expect(getEnclosingRect([])).toBeNull();
+  });
+
+  it('returns the rect itself for a single input', () => {
+    expect(getEnclosingRect([UNIT_RECT])).toEqual(UNIT_RECT);
+  });
+
+  it('encloses several rects', () => {
+    const enclosing = getEnclosingRect([
+      { x: 0, y: 0, width: 10, height: 10 },
+      { x: 90, y: 40, width: 10, height: 10 },
+    ]);
+
+    expect(enclosing).toEqual({ x: 0, y: 0, width: 100, height: 50 });
   });
 });
 

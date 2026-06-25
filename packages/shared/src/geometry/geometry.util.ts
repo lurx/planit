@@ -57,6 +57,37 @@ export function rectsIntersect(a: Rect, b: Rect): boolean {
   );
 }
 
+/** Does `outer` fully contain `inner` (edges inclusive)? */
+export function rectContainsRect(outer: Rect, inner: Rect): boolean {
+  return (
+    inner.x >= outer.x &&
+    inner.y >= outer.y &&
+    inner.x + inner.width <= outer.x + outer.width &&
+    inner.y + inner.height <= outer.y + outer.height
+  );
+}
+
+/** The smallest rect enclosing all `rects`, or `null` when the list is empty. */
+export function getEnclosingRect(rects: readonly Rect[]): Rect | null {
+  if (rects.length === 0) {
+    return null;
+  }
+
+  let minX = Number.POSITIVE_INFINITY;
+  let minY = Number.POSITIVE_INFINITY;
+  let maxX = Number.NEGATIVE_INFINITY;
+  let maxY = Number.NEGATIVE_INFINITY;
+
+  for (const rect of rects) {
+    minX = Math.min(minX, rect.x);
+    minY = Math.min(minY, rect.y);
+    maxX = Math.max(maxX, rect.x + rect.width);
+    maxY = Math.max(maxY, rect.y + rect.height);
+  }
+
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
 /** Build the eight resize-handle rects around `bounds`, each `handleSize` square and centred. */
 export function getResizeHandles(bounds: Rect, handleSize: number): ResizeHandles {
   const half = handleSize / 2;

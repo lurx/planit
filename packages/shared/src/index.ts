@@ -8,3 +8,4 @@
 export * from './camera';
 export * from './geometry';
 export * from './shapes';
+export * from './spatial';
