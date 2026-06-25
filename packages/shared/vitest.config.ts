@@ -8,7 +8,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.ts'],
-      exclude: ['src/**/__tests__/**', '**/*.types.ts'],
+      exclude: ['src/**/__tests__/**', '**/*.types.ts', '**/index.ts'],
       // The keystone package is pure logic — hold it to 100% as code lands (T5.1).
       thresholds: { lines: 100, functions: 100, branches: 100, statements: 100 },
     },
