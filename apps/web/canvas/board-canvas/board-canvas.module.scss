@@ -3,6 +3,12 @@
   inline-size: 100%;
   block-size: 100%;
   overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+
+  &:active {
+    cursor: grabbing;
+  }
 }
 
 .board-canvas__layer {

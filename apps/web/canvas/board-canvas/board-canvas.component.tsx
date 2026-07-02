@@ -1,12 +1,13 @@
 'use client';
 
-import { DEFAULT_CAMERA, buildShapeQuadtree } from '@planit/shared';
+import { buildShapeQuadtree } from '@planit/shared';
 import type { RefObject } from 'react';
 import { useCallback, useEffect, useRef } from 'react';
 import { useWindowSize } from 'usehooks-ts';
 
 import { Canvas2DRenderer } from '../renderer';
 import { useRenderLoop } from '../render-loop';
+import { useViewport } from '../viewport';
 import {
   drawGrid,
   getDevicePixelRatio,
@@ -20,13 +21,16 @@ import styles from './board-canvas.module.scss';
 /**
  * The layered Canvas 2D board. Three stacked canvases keep concerns isolated: a grid layer, the
  * shapes layer (culled via the quadtree, painted by the renderer), and an overlay layer reserved
- * for selection and remote cursors (T3.x). Each frame is driven by the coalescing render loop,
- * requested on doc mutations and viewport changes.
+ * for selection and remote cursors (T3.x). Pan/zoom comes from useViewport; each frame is driven
+ * by the coalescing render loop, requested on doc mutations and viewport changes.
  */
-export function BoardCanvas({ board, camera = DEFAULT_CAMERA }: BoardCanvasProps) {
+export function BoardCanvas({ board }: BoardCanvasProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLCanvasElement>(null);
   const shapesRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
+
+  const { camera } = useViewport(containerRef);
 
   const { width, height } = useWindowSize();
 
@@ -55,6 +59,8 @@ export function BoardCanvas({ board, camera = DEFAULT_CAMERA }: BoardCanvasProps
 
   useEffect(() => board.observe(requestRender), [board, requestRender]);
 
+  // Size the backing stores only when the viewport (or DPR) changes — reassigning canvas.width
+  // clears the bitmap, so we must not do it on every camera move.
   useEffect(() => {
     const dpr = getDevicePixelRatio();
     const layers: RefObject<HTMLCanvasElement | null>[] = [gridRef, shapesRef, overlayRef];
@@ -64,14 +70,19 @@ export function BoardCanvas({ board, camera = DEFAULT_CAMERA }: BoardCanvasProps
       }
     }
     requestRender();
-  }, [width, height, camera, requestRender]);
+  }, [width, height, requestRender]);
+
+  // Repaint on camera changes (pan/zoom) without resizing the canvases.
+  useEffect(() => {
+    requestRender();
+  }, [camera, requestRender]);
 
   const renderLayer = (ref: RefObject<HTMLCanvasElement | null>, testId: string) => (
     <canvas ref={ref} className={styles['board-canvas__layer']} data-testid={testId} />
   );
 
   return (
-    <div className={styles['board-canvas']} data-testid="board-canvas">
+    <div ref={containerRef} className={styles['board-canvas']} data-testid="board-canvas">
       {renderLayer(gridRef, 'board-canvas-grid')}
       {renderLayer(shapesRef, 'board-canvas-shapes')}
       {renderLayer(overlayRef, 'board-canvas-overlay')}
