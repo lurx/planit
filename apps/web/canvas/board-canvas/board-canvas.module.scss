@@ -3,20 +3,12 @@
   inline-size: 100%;
   block-size: 100%;
   overflow: hidden;
-  cursor: grab;
+  cursor: default;
   touch-action: none;
 
-  &:active {
-    cursor: grabbing;
-  }
-
-  // Drawing tools own the drag, so show a crosshair instead of the pan grab affordance.
+  // Drawing tools own the drag, so show a crosshair instead of the default select cursor.
   &--drawing {
     cursor: crosshair;
-
-    &:active {
-      cursor: crosshair;
-    }
   }
 }
 

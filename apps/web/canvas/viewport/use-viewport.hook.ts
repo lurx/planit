@@ -50,8 +50,15 @@ export function useViewport(
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!dragPanEnabled || !event.isPrimary || event.button !== 0) {
+      // Middle-button drag always pans; primary-button drag pans only when enabled (no drawing
+      // or selection tool owns it). The middle button would otherwise trigger browser autoscroll.
+      const isMiddleButtonPan = event.button === 1;
+      const isPrimaryButtonPan = dragPanEnabled && event.isPrimary && event.button === 0;
+      if (!isMiddleButtonPan && !isPrimaryButtonPan) {
         return;
+      }
+      if (isMiddleButtonPan) {
+        event.preventDefault();
       }
       dragRef.current = { pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
       element.setPointerCapture(event.pointerId);

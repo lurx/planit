@@ -8,10 +8,12 @@ import { useWindowSize } from 'usehooks-ts';
 
 import { Canvas2DRenderer } from '../renderer';
 import { useRenderLoop } from '../render-loop';
+import { useSelection } from '../selection';
 import { isDrawTool, useShapeDrawing } from '../tools';
 import { useViewport } from '../viewport';
 import {
   drawGrid,
+  drawSelectionOverlay,
   getDevicePixelRatio,
   getViewportWorldRect,
   syncCanvasSize,
@@ -32,9 +34,13 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
   const shapesRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
 
-  const { camera } = useViewport(containerRef, { dragPanEnabled: !isDrawTool(tool) });
+  // Primary-drag never pans: draw tools own it (draw), the select tool owns it (select/move).
+  // Panning is via the wheel/trackpad and middle-mouse drag (an explicit pan tool lands in M4).
+  const { camera } = useViewport(containerRef, { dragPanEnabled: false });
 
   const { width, height } = useWindowSize();
+
+  const isDrawing = isDrawTool(tool);
 
   const commitShape = useCallback((shape: Shape) => board.addShape(shape), [board]);
 
@@ -43,6 +49,13 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     tool,
     camera,
     onCommit: commitShape,
+  });
+
+  const { selectedIds, marquee } = useSelection({
+    targetRef: containerRef,
+    board,
+    camera,
+    enabled: !isDrawing,
   });
 
   const render = useCallback(() => {
@@ -62,13 +75,16 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
 
     const viewport = { width, height, devicePixelRatio: getDevicePixelRatio() };
     const worldRect = getViewportWorldRect(camera, width, height);
-    const visible = buildShapeQuadtree(board.getShapes()).query(worldRect);
+    const shapes = board.getShapes();
+    const visible = buildShapeQuadtree(shapes).query(worldRect);
+    const selectedShapes = isDrawing ? [] : shapes.filter((shape) => selectedIds.has(shape.id));
 
     drawGrid(gridCtx, camera, viewport);
     new Canvas2DRenderer(shapesCtx).draw(visible, camera, viewport);
-    // The overlay carries the in-progress preview; an empty list clears it once the drag ends.
+    // Overlay: the in-progress draw preview (an empty list clears it), then selection chrome.
     new Canvas2DRenderer(overlayCtx).draw(previewShape ? [previewShape] : [], camera, viewport);
-  }, [board, camera, width, height, previewShape]);
+    drawSelectionOverlay(overlayCtx, camera, viewport, selectedShapes, marquee);
+  }, [board, camera, width, height, previewShape, isDrawing, selectedIds, marquee]);
 
   const requestRender = useRenderLoop(render);
 
@@ -87,10 +103,10 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     requestRender();
   }, [width, height, requestRender]);
 
-  // Repaint on camera changes (pan/zoom) or preview updates without resizing the canvases.
+  // Repaint on camera, preview, or selection changes without resizing the canvases.
   useEffect(() => {
     requestRender();
-  }, [camera, previewShape, requestRender]);
+  }, [camera, previewShape, selectedIds, marquee, requestRender]);
 
   const surfaceClassName = isDrawTool(tool)
     ? `${styles['board-canvas']} ${styles['board-canvas--drawing']}`
