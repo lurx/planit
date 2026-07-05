@@ -5,7 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ZOOM_BUTTON_STEP } from './viewport.constants';
 import { applyWheelGesture, zoomCameraAtCenter } from './viewport.helpers';
-import type { UseViewportResult } from './viewport.types';
+import type { UseViewportOptions, UseViewportResult } from './viewport.types';
 
 type DragState = {
   pointerId: number;
@@ -21,7 +21,11 @@ type DragState = {
  * The wheel listener is attached natively (non-passive) so it can `preventDefault` the browser's
  * page zoom/scroll — React's synthetic wheel handler is passive and can't.
  */
-export function useViewport(targetRef: RefObject<HTMLElement | null>): UseViewportResult {
+export function useViewport(
+  targetRef: RefObject<HTMLElement | null>,
+  options: UseViewportOptions = {},
+): UseViewportResult {
+  const { dragPanEnabled = true } = options;
   const [camera, setCamera] = useState<Camera>(DEFAULT_CAMERA);
   const dragRef = useRef<DragState | null>(null);
 
@@ -46,7 +50,7 @@ export function useViewport(targetRef: RefObject<HTMLElement | null>): UseViewpo
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!event.isPrimary || event.button !== 0) {
+      if (!dragPanEnabled || !event.isPrimary || event.button !== 0) {
         return;
       }
       dragRef.current = { pointerId: event.pointerId, lastX: event.clientX, lastY: event.clientY };
@@ -88,7 +92,7 @@ export function useViewport(targetRef: RefObject<HTMLElement | null>): UseViewpo
       element.removeEventListener('pointerup', handlePointerUp);
       element.removeEventListener('pointercancel', handlePointerUp);
     };
-  }, [targetRef]);
+  }, [targetRef, dragPanEnabled]);
 
   const zoomAtViewportCenter = useCallback(
     (factor: number) => {

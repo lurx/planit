@@ -10,6 +10,11 @@ export type WheelGesture = {
   anchor: Point;
 };
 
+export type UseViewportOptions = {
+  /** When false, primary-button drag no longer pans (a drawing tool owns the drag instead). */
+  dragPanEnabled?: boolean;
+};
+
 export type UseViewportResult = {
   camera: Camera;
   zoomIn: () => void;
