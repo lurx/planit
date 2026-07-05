@@ -8,7 +8,7 @@ import { useWindowSize } from 'usehooks-ts';
 
 import { Canvas2DRenderer } from '../renderer';
 import { useRenderLoop } from '../render-loop';
-import { useSelection } from '../selection';
+import { getResizeTarget, useSelection } from '../selection';
 import { isDrawTool, useShapeDrawing } from '../tools';
 import { useViewport } from '../viewport';
 import {
@@ -78,12 +78,13 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     const shapes = board.getShapes();
     const visible = buildShapeQuadtree(shapes).query(worldRect);
     const selectedShapes = isDrawing ? [] : shapes.filter((shape) => selectedIds.has(shape.id));
+    const resizeTarget = getResizeTarget(selectedShapes);
 
     drawGrid(gridCtx, camera, viewport);
     new Canvas2DRenderer(shapesCtx).draw(visible, camera, viewport);
     // Overlay: the in-progress draw preview (an empty list clears it), then selection chrome.
     new Canvas2DRenderer(overlayCtx).draw(previewShape ? [previewShape] : [], camera, viewport);
-    drawSelectionOverlay(overlayCtx, camera, viewport, selectedShapes, marquee);
+    drawSelectionOverlay(overlayCtx, camera, viewport, selectedShapes, marquee, resizeTarget);
   }, [board, camera, width, height, previewShape, isDrawing, selectedIds, marquee]);
 
   const requestRender = useRenderLoop(render);

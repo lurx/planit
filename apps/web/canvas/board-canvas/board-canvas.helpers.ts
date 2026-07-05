@@ -1,5 +1,11 @@
 import type { Camera, Rect, Shape } from '@planit/shared';
-import { getShapeBounds, screenToWorld, toCanvasTransform } from '@planit/shared';
+import {
+  getResizeHandles,
+  getShapeBounds,
+  RESIZE_HANDLE_POSITIONS,
+  screenToWorld,
+  toCanvasTransform,
+} from '@planit/shared';
 
 import type { Canvas2DContext, Viewport } from '../renderer';
 import {
@@ -10,6 +16,8 @@ import {
   MARQUEE_FILL_STYLE,
   MARQUEE_OUTLINE_STYLE,
   MARQUEE_OUTLINE_WIDTH_PX,
+  RESIZE_HANDLE_FILL_STYLE,
+  RESIZE_HANDLE_SIZE_PX,
   SELECTION_OUTLINE_STYLE,
   SELECTION_OUTLINE_WIDTH_PX,
   SELECTION_PADDING_PX,
@@ -101,6 +109,7 @@ export function drawSelectionOverlay(
   viewport: Viewport,
   selectedShapes: readonly Shape[],
   marquee: Rect | null,
+  resizeTarget: Shape | null,
 ): void {
   if (selectedShapes.length === 0 && !marquee) {
     return;
@@ -124,6 +133,10 @@ export function drawSelectionOverlay(
     ctx.stroke();
   }
 
+  if (resizeTarget) {
+    drawResizeHandles(ctx, camera, resizeTarget);
+  }
+
   if (marquee) {
     ctx.beginPath();
     ctx.rect(marquee.x, marquee.y, marquee.width, marquee.height);
@@ -131,6 +144,22 @@ export function drawSelectionOverlay(
     ctx.fill();
     ctx.lineWidth = MARQUEE_OUTLINE_WIDTH_PX / camera.zoom;
     ctx.strokeStyle = MARQUEE_OUTLINE_STYLE;
+    ctx.stroke();
+  }
+}
+
+/** Paint the eight screen-constant resize handles around a shape's bounds. */
+function drawResizeHandles(ctx: Canvas2DContext, camera: Camera, shape: Shape): void {
+  const handleSize = RESIZE_HANDLE_SIZE_PX / camera.zoom;
+  const handles = getResizeHandles(getShapeBounds(shape), handleSize);
+  ctx.fillStyle = RESIZE_HANDLE_FILL_STYLE;
+  ctx.strokeStyle = SELECTION_OUTLINE_STYLE;
+  ctx.lineWidth = SELECTION_OUTLINE_WIDTH_PX / camera.zoom;
+  for (const position of RESIZE_HANDLE_POSITIONS) {
+    const handle = handles[position];
+    ctx.beginPath();
+    ctx.rect(handle.x, handle.y, handle.width, handle.height);
+    ctx.fill();
     ctx.stroke();
   }
 }
