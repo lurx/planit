@@ -1,5 +1,5 @@
 import { getShapeBounds, hitTestShape, rectsIntersect } from '@planit/shared';
-import type { Point, Rect, Shape, ShapePatch } from '@planit/shared';
+import type { BoardDoc, Point, Rect, Shape, ShapePatch } from '@planit/shared';
 
 /** The topmost shape (last in z-order) hit by `point`, or `null` when the point hits nothing. */
 export function findTopmostShapeAt(
@@ -50,4 +50,15 @@ export function toggleId(selection: ReadonlySet<string>, id: string): Set<string
     next.add(id);
   }
   return next;
+}
+
+/** Remove every `id` from the board, returning how many shapes were actually deleted. */
+export function deleteShapes(board: BoardDoc, ids: Iterable<string>): number {
+  let removed = 0;
+  for (const id of ids) {
+    if (board.removeShape(id)) {
+      removed += 1;
+    }
+  }
+  return removed;
 }

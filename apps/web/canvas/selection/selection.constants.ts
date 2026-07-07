@@ -6,3 +6,6 @@ export const RESIZE_HANDLE_HIT_PX = 12;
 
 /** Smallest a shape may be resized to, in world units. */
 export const MIN_SHAPE_SIZE = 10;
+
+/** Keys that delete the current selection. */
+export const DELETE_KEYS: ReadonlySet<string> = new Set(['Delete', 'Backspace']);

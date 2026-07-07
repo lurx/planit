@@ -1,5 +1,6 @@
 export { findHandleAt, getResizeTarget, resizeBounds, resizeShapePatch } from './resize.helpers';
 export {
+  deleteShapes,
   findTopmostShapeAt,
   getShapeIdsInRect,
   moveShapePatch,

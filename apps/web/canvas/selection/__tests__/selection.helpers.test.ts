@@ -1,8 +1,9 @@
-import { createArrow, createRect } from '@planit/shared';
+import { BoardDoc, createArrow, createRect } from '@planit/shared';
 import type { Point } from '@planit/shared';
 import { describe, expect, it } from 'vitest';
 
 import {
+  deleteShapes,
   findTopmostShapeAt,
   getShapeIdsInRect,
   moveShapePatch,
@@ -64,6 +65,36 @@ describe('moveShapePatch', () => {
     const arrow = createArrow({ id: 'a', x1: 0, y1: 0, x2: 100, y2: 40 });
 
     expect(moveShapePatch(arrow, 10, 20)).toEqual({ x1: 10, y1: 20, x2: 110, y2: 60 });
+  });
+});
+
+describe('deleteShapes', () => {
+  function seededBoard(): BoardDoc {
+    const board = new BoardDoc();
+    board.addShape(createRect({ id: 'a', x: 0, y: 0, width: 10, height: 10 }));
+    board.addShape(createRect({ id: 'b', x: 0, y: 0, width: 10, height: 10 }));
+    return board;
+  }
+
+  it('removes the selected ids and reports the count', () => {
+    const board = seededBoard();
+
+    expect(deleteShapes(board, ['a'])).toBe(1);
+    expect(board.getShape('a')).toBeUndefined();
+    expect(board.getShape('b')).toBeDefined();
+  });
+
+  it('ignores ids that are not present', () => {
+    const board = seededBoard();
+
+    expect(deleteShapes(board, ['a', 'missing'])).toBe(1);
+  });
+
+  it('is a no-op for an empty selection', () => {
+    const board = seededBoard();
+
+    expect(deleteShapes(board, [])).toBe(0);
+    expect(board.getShapes()).toHaveLength(2);
   });
 });
 

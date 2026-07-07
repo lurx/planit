@@ -2,9 +2,15 @@ import { getShapeBounds, screenToWorld } from '@planit/shared';
 import type { Point, Rect, ResizeHandlePosition, Shape } from '@planit/shared';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { MIN_SHAPE_SIZE, RESIZE_HANDLE_HIT_PX, SELECT_TOLERANCE_PX } from './selection.constants';
+import {
+  DELETE_KEYS,
+  MIN_SHAPE_SIZE,
+  RESIZE_HANDLE_HIT_PX,
+  SELECT_TOLERANCE_PX,
+} from './selection.constants';
 import { findHandleAt, getResizeTarget, resizeBounds, resizeShapePatch } from './resize.helpers';
 import {
+  deleteShapes,
   findTopmostShapeAt,
   getShapeIdsInRect,
   moveShapePatch,
@@ -41,6 +47,14 @@ type DragState = MoveDrag | MarqueeDrag | ResizeDrag;
 
 const EMPTY_SELECTION: SelectionSet = new Set();
 
+/** True when the event originates from an editable field, where Delete/Backspace must not delete shapes. */
+function isTypingTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) {
+    return false;
+  }
+  return target.isContentEditable || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA';
+}
+
 /**
  * Own the selection set and wire click/marquee-select and drag-to-move onto `targetRef` for the
  * select tool. Clicking a shape selects it (shift/meta toggles); dragging a selected shape moves
@@ -64,6 +78,22 @@ export function useSelection({
   selectedIdsRef.current = selectedIds;
 
   const clearSelection = useCallback(() => setSelectedIds(EMPTY_SELECTION), []);
+
+  // Delete/Backspace removes the current selection. Always active (independent of the pointer
+  // tool) so a selection can be deleted from any tool, but never while typing in a field.
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!DELETE_KEYS.has(event.key) || isTypingTarget(event.target)) {
+        return;
+      }
+      if (deleteShapes(board, selectedIdsRef.current) > 0) {
+        event.preventDefault();
+        setSelectedIds(EMPTY_SELECTION);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [board]);
 
   useEffect(() => {
     const element = targetRef.current;
