@@ -9,6 +9,7 @@ import { useWindowSize } from 'usehooks-ts';
 import { Canvas2DRenderer } from '../renderer';
 import { useRenderLoop } from '../render-loop';
 import { getResizeTarget, useSelection } from '../selection';
+import { TextEditor, useTextEditing } from '../text-editing';
 import { isDrawTool, useShapeDrawing } from '../tools';
 import { useViewport } from '../viewport';
 import {
@@ -58,6 +59,13 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     enabled: !isDrawing,
   });
 
+  const { editingId, commitText, cancelEditing } = useTextEditing({
+    targetRef: containerRef,
+    board,
+    camera,
+    enabled: !isDrawing,
+  });
+
   const render = useCallback(() => {
     const gridCanvas = gridRef.current;
     const shapesCanvas = shapesRef.current;
@@ -79,13 +87,17 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     const visible = buildShapeQuadtree(shapes).query(worldRect);
     const selectedShapes = isDrawing ? [] : shapes.filter((shape) => selectedIds.has(shape.id));
     const resizeTarget = getResizeTarget(selectedShapes);
+    // Hide the canvas text of the shape being edited — the DOM editor renders it instead.
+    const painted = editingId
+      ? visible.map((shape) => (shape.id === editingId ? { ...shape, text: '' } : shape))
+      : visible;
 
     drawGrid(gridCtx, camera, viewport);
-    new Canvas2DRenderer(shapesCtx).draw(visible, camera, viewport);
+    new Canvas2DRenderer(shapesCtx).draw(painted, camera, viewport);
     // Overlay: the in-progress draw preview (an empty list clears it), then selection chrome.
     new Canvas2DRenderer(overlayCtx).draw(previewShape ? [previewShape] : [], camera, viewport);
     drawSelectionOverlay(overlayCtx, camera, viewport, selectedShapes, marquee, resizeTarget);
-  }, [board, camera, width, height, previewShape, isDrawing, selectedIds, marquee]);
+  }, [board, camera, width, height, previewShape, isDrawing, selectedIds, marquee, editingId]);
 
   const requestRender = useRenderLoop(render);
 
@@ -104,10 +116,10 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     requestRender();
   }, [width, height, requestRender]);
 
-  // Repaint on camera, preview, or selection changes without resizing the canvases.
+  // Repaint on camera, preview, selection, or edit changes without resizing the canvases.
   useEffect(() => {
     requestRender();
-  }, [camera, previewShape, selectedIds, marquee, requestRender]);
+  }, [camera, previewShape, selectedIds, marquee, editingId, requestRender]);
 
   const surfaceClassName = isDrawTool(tool)
     ? `${styles['board-canvas']} ${styles['board-canvas--drawing']}`
@@ -117,11 +129,27 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     <canvas ref={ref} className={styles['board-canvas__layer']} data-testid={testId} />
   );
 
+  const renderTextEditor = () => {
+    const editingShape = editingId ? board.getShape(editingId) : undefined;
+    if (!editingShape) {
+      return null;
+    }
+    return (
+      <TextEditor
+        shape={editingShape}
+        camera={camera}
+        onCommitAction={commitText}
+        onCancelAction={cancelEditing}
+      />
+    );
+  };
+
   return (
     <div ref={containerRef} className={surfaceClassName} data-testid="board-canvas">
       {renderLayer(gridRef, 'board-canvas-grid')}
       {renderLayer(shapesRef, 'board-canvas-shapes')}
       {renderLayer(overlayRef, 'board-canvas-overlay')}
+      {renderTextEditor()}
     </div>
   );
 }

@@ -107,7 +107,8 @@ export function useSelection({
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!event.isPrimary || event.button !== 0) {
+      // Ignore presses inside the inline text editor so clicking into it never moves the shape.
+      if (!event.isPrimary || event.button !== 0 || event.target instanceof HTMLTextAreaElement) {
         return;
       }
       const world = toWorld(event.clientX, event.clientY);
