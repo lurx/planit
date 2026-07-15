@@ -4,9 +4,10 @@ export {
   lineShapeSchema,
   rectShapeSchema,
   shapeSchema,
+  textShapeSchema,
 } from './shape.schema';
-export { DEFAULT_SHAPE_TEXT, SHAPE_TYPES } from './shape.constants';
-export { createArrow, createEllipse, createLine, createRect } from './shape.factory';
+export { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL, SHAPES, SHAPE_TYPES } from './shape.constants';
+export { createArrow, createEllipse, createLine, createRect, createText } from './shape.factory';
 export { getShapeBounds, hitTestShape } from './shape.geometry.util';
 export { buildShapeQuadtree } from './shape.spatial.util';
 export type {
@@ -20,4 +21,5 @@ export type {
   SegmentShape,
   Shape,
   ShapeType,
+  TextShape,
 } from './shape.types';

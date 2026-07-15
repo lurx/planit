@@ -44,7 +44,8 @@ export function useShapeDrawing({
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      if (!event.isPrimary || event.button !== 0) {
+      // Only presses on a canvas layer draw — never the toolbar or text editor on top.
+      if (!event.isPrimary || event.button !== 0 || !(event.target instanceof HTMLCanvasElement)) {
         return;
       }
       const startWorld = toWorld(event.clientX, event.clientY);

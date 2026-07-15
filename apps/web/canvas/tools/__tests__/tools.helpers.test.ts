@@ -7,13 +7,15 @@ const START: Point = { x: 30, y: 40 };
 const END: Point = { x: 10, y: 90 };
 
 describe('isDrawTool', () => {
-  it('treats select as a non-drawing tool', () => {
+  it('treats select and pan as non-drawing tools', () => {
     expect(isDrawTool('select')).toBe(false);
+    expect(isDrawTool('pan')).toBe(false);
   });
 
   it('treats every shape tool as a drawing tool', () => {
     expect(isDrawTool('rect')).toBe(true);
     expect(isDrawTool('ellipse')).toBe(true);
+    expect(isDrawTool('text')).toBe(true);
     expect(isDrawTool('line')).toBe(true);
     expect(isDrawTool('arrow')).toBe(true);
   });
@@ -38,6 +40,12 @@ describe('createShapeFromDrag', () => {
     const ellipse = createShapeFromDrag('ellipse', START, END, 'e1');
 
     expect(ellipse).toMatchObject({ type: 'ellipse', x: 10, y: 40, width: 20, height: 50 });
+  });
+
+  it('builds a text shape from the normalized box', () => {
+    const text = createShapeFromDrag('text', START, END, 't1');
+
+    expect(text).toMatchObject({ type: 'text', x: 10, y: 40, width: 20, height: 50 });
   });
 
   it('keeps segment direction for a line (no normalization)', () => {

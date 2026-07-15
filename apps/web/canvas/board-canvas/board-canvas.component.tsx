@@ -10,7 +10,8 @@ import { Canvas2DRenderer } from '../renderer';
 import { useRenderLoop } from '../render-loop';
 import { getResizeTarget, useSelection } from '../selection';
 import { TextEditor, useTextEditing } from '../text-editing';
-import { isDrawTool, useShapeDrawing } from '../tools';
+import { Toolbar } from '../toolbar';
+import { isDrawTool, useActiveTool, useShapeDrawing } from '../tools';
 import { useViewport } from '../viewport';
 import {
   drawGrid,
@@ -29,19 +30,24 @@ import styles from './board-canvas.module.scss';
  * for selection and remote cursors (T3.x). Pan/zoom comes from useViewport; each frame is driven
  * by the coalescing render loop, requested on doc mutations and viewport changes.
  */
-export function BoardCanvas({ board, tool }: BoardCanvasProps) {
+export function BoardCanvas({ board }: BoardCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLCanvasElement>(null);
   const shapesRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLCanvasElement>(null);
 
-  // Primary-drag never pans: draw tools own it (draw), the select tool owns it (select/move).
-  // Panning is via the wheel/trackpad and middle-mouse drag (an explicit pan tool lands in M4).
-  const { camera } = useViewport(containerRef, { dragPanEnabled: false });
-
-  const { width, height } = useWindowSize();
+  const { tool, setTool } = useActiveTool();
 
   const isDrawing = isDrawTool(tool);
+  const isSelecting = tool === 'select';
+
+  // The active tool decides who owns the primary drag: the pan tool pans, draw tools draw, the
+  // select tool selects/moves. (The wheel/trackpad and middle-mouse drag always pan too.)
+  const { camera, zoomIn, zoomOut, resetView } = useViewport(containerRef, {
+    dragPanEnabled: tool === 'pan',
+  });
+
+  const { width, height } = useWindowSize();
 
   const commitShape = useCallback((shape: Shape) => board.addShape(shape), [board]);
 
@@ -56,14 +62,14 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     targetRef: containerRef,
     board,
     camera,
-    enabled: !isDrawing,
+    enabled: isSelecting,
   });
 
   const { editingId, commitText, cancelEditing } = useTextEditing({
     targetRef: containerRef,
     board,
     camera,
-    enabled: !isDrawing,
+    enabled: isSelecting,
   });
 
   const render = useCallback(() => {
@@ -85,7 +91,7 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     const worldRect = getViewportWorldRect(camera, width, height);
     const shapes = board.getShapes();
     const visible = buildShapeQuadtree(shapes).query(worldRect);
-    const selectedShapes = isDrawing ? [] : shapes.filter((shape) => selectedIds.has(shape.id));
+    const selectedShapes = isSelecting ? shapes.filter((shape) => selectedIds.has(shape.id)) : [];
     const resizeTarget = getResizeTarget(selectedShapes);
     // Hide the canvas text of the shape being edited — the DOM editor renders it instead.
     const painted = editingId
@@ -97,7 +103,7 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     // Overlay: the in-progress draw preview (an empty list clears it), then selection chrome.
     new Canvas2DRenderer(overlayCtx).draw(previewShape ? [previewShape] : [], camera, viewport);
     drawSelectionOverlay(overlayCtx, camera, viewport, selectedShapes, marquee, resizeTarget);
-  }, [board, camera, width, height, previewShape, isDrawing, selectedIds, marquee, editingId]);
+  }, [board, camera, width, height, previewShape, isSelecting, selectedIds, marquee, editingId]);
 
   const requestRender = useRenderLoop(render);
 
@@ -121,9 +127,13 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
     requestRender();
   }, [camera, previewShape, selectedIds, marquee, editingId, requestRender]);
 
-  const surfaceClassName = isDrawTool(tool)
-    ? `${styles['board-canvas']} ${styles['board-canvas--drawing']}`
-    : styles['board-canvas'];
+  const surfaceClassName = [
+    styles['board-canvas'],
+    isDrawing && styles['board-canvas--drawing'],
+    tool === 'pan' && styles['board-canvas--panning'],
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   const renderLayer = (ref: RefObject<HTMLCanvasElement | null>, testId: string) => (
     <canvas ref={ref} className={styles['board-canvas__layer']} data-testid={testId} />
@@ -150,6 +160,14 @@ export function BoardCanvas({ board, tool }: BoardCanvasProps) {
       {renderLayer(shapesRef, 'board-canvas-shapes')}
       {renderLayer(overlayRef, 'board-canvas-overlay')}
       {renderTextEditor()}
+      <Toolbar
+        activeTool={tool}
+        zoom={camera.zoom}
+        onSelectToolAction={setTool}
+        onZoomInAction={zoomIn}
+        onZoomOutAction={zoomOut}
+        onResetViewAction={resetView}
+      />
     </div>
   );
 }

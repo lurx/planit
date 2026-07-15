@@ -10,6 +10,15 @@
   &--drawing {
     cursor: crosshair;
   }
+
+  // The pan tool grabs the canvas to drag it.
+  &--panning {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
 }
 
 .board-canvas__layer {

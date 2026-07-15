@@ -1,4 +1,4 @@
-import { getResizeHandles, pointInRect, RESIZE_HANDLE_POSITIONS } from '@planit/shared';
+import { getResizeHandles, pointInRect, RESIZE_HANDLE_POSITIONS, SHAPES } from '@planit/shared';
 import type {
   BoxShape,
   Point,
@@ -17,7 +17,9 @@ export function getResizeTarget(shapes: readonly Shape[]): BoxShape | null {
   if (!shape) {
     return null;
   }
-  return shape.type === 'rect' || shape.type === 'ellipse' ? shape : null;
+  return shape.type === SHAPES.RECT || shape.type === SHAPES.ELLIPSE || shape.type === SHAPES.TEXT
+    ? shape
+    : null;
 }
 
 /** The resize handle whose (world-space, `handleSize`-square) rect contains `point`, or `null`. */

@@ -1,4 +1,4 @@
-import { createArrow, createEllipse, createLine, createRect } from '@planit/shared';
+import { createArrow, createEllipse, createLine, createRect, createText } from '@planit/shared';
 import type { Camera } from '@planit/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -100,6 +100,16 @@ describe('Canvas2DRenderer.draw', () => {
 
     // Segment + two arrowhead barbs = three lineTo calls.
     expect(ctx.lineTo).toHaveBeenCalledTimes(3);
+  });
+
+  it('draws a text shape as its label only, with no box outline', () => {
+    const text = createText({ id: 't', x: 0, y: 0, width: 100, height: 40, text: 'label' });
+
+    renderer.draw([text], IDENTITY_CAMERA, VIEWPORT);
+
+    expect(ctx.fillText).toHaveBeenCalledWith('label', 50, 20);
+    expect(ctx.rect).not.toHaveBeenCalled();
+    expect(ctx.ellipse).not.toHaveBeenCalled();
   });
 
   it('renders text centred on the shape when present', () => {
