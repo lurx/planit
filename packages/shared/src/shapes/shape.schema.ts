@@ -37,6 +37,11 @@ export const ellipseShapeSchema = baseShapeSchema
   .extend(boxGeometrySchema.shape)
   .extend({ type: z.literal('ellipse') });
 
+/** A text shape is a box with no outline — only its `text` renders. */
+export const textShapeSchema = baseShapeSchema
+  .extend(boxGeometrySchema.shape)
+  .extend({ type: z.literal('text') });
+
 export const lineShapeSchema = baseShapeSchema
   .extend(segmentGeometrySchema.shape)
   .extend({ type: z.literal('line') });
@@ -48,6 +53,7 @@ export const arrowShapeSchema = baseShapeSchema
 export const shapeSchema = z.discriminatedUnion('type', [
   rectShapeSchema,
   ellipseShapeSchema,
+  textShapeSchema,
   lineShapeSchema,
   arrowShapeSchema,
 ]);

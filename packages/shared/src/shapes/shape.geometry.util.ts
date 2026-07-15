@@ -7,6 +7,7 @@ export function getShapeBounds(shape: Shape): Rect {
   switch (shape.type) {
     case 'rect':
     case 'ellipse':
+    case 'text':
       return { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
     case 'line':
     case 'arrow':
@@ -26,6 +27,7 @@ export function getShapeBounds(shape: Shape): Rect {
 export function hitTestShape(shape: Shape, point: Point, tolerance: number): boolean {
   switch (shape.type) {
     case 'rect':
+    case 'text':
       return pointInRect(point, getShapeBounds(shape));
     case 'ellipse':
       return pointInEllipse(point, getShapeBounds(shape));

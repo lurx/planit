@@ -74,6 +74,9 @@ export class Canvas2DRenderer implements Renderer {
       case 'arrow':
         this.drawArrow(shape);
         break;
+      case 'text':
+        // No outline — a text shape renders only its label below.
+        break;
     }
     this.drawText(shape);
   }

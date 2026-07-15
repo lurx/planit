@@ -1,4 +1,4 @@
-import { DEFAULT_SHAPE_TEXT } from './shape.constants';
+import { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL } from './shape.constants';
 import type {
   ArrowShape,
   CreateBoxShapeInput,
@@ -6,6 +6,7 @@ import type {
   EllipseShape,
   LineShape,
   RectShape,
+  TextShape,
 } from './shape.types';
 
 export function createRect(input: CreateBoxShapeInput): RectShape {
@@ -29,6 +30,18 @@ export function createEllipse(input: CreateBoxShapeInput): EllipseShape {
     width: input.width,
     height: input.height,
     text: input.text ?? DEFAULT_SHAPE_TEXT,
+  };
+}
+
+export function createText(input: CreateBoxShapeInput): TextShape {
+  return {
+    type: 'text',
+    id: input.id,
+    x: input.x,
+    y: input.y,
+    width: input.width,
+    height: input.height,
+    text: input.text ?? DEFAULT_TEXT_LABEL,
   };
 }
 

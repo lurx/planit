@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createArrow, createEllipse, createLine, createRect } from '../shape.factory';
+import { createArrow, createEllipse, createLine, createRect, createText } from '../shape.factory';
 import { shapeSchema } from '../shape.schema';
 
 describe('createRect', () => {
@@ -22,6 +22,26 @@ describe('createRect', () => {
     const rect = createRect({ id: 'r1', x: 0, y: 0, width: 1, height: 1 });
 
     expect(rect.text).toBe('');
+  });
+});
+
+describe('createText', () => {
+  it('builds a text shape from box geometry', () => {
+    const text = createText({ id: 't1', x: 5, y: 6, width: 120, height: 24, text: 'label' });
+
+    expect(text).toEqual({
+      type: 'text',
+      id: 't1',
+      x: 5,
+      y: 6,
+      width: 120,
+      height: 24,
+      text: 'label',
+    });
+  });
+
+  it('defaults to a visible placeholder label when text is omitted', () => {
+    expect(createText({ id: 't1', x: 0, y: 0, width: 1, height: 1 }).text).toBe('Text');
   });
 });
 
@@ -76,6 +96,7 @@ describe('factory output validity', () => {
     const shapes = [
       createRect({ id: 'r', x: 0, y: 0, width: 10, height: 10 }),
       createEllipse({ id: 'e', x: 0, y: 0, width: 10, height: 10 }),
+      createText({ id: 't', x: 0, y: 0, width: 10, height: 10 }),
       createLine({ id: 'l', x1: 0, y1: 0, x2: 10, y2: 10 }),
       createArrow({ id: 'a', x1: 0, y1: 0, x2: 10, y2: 10 }),
     ];

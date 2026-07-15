@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createArrow, createEllipse, createLine, createRect } from '../shape.factory';
+import { createArrow, createEllipse, createLine, createRect, createText } from '../shape.factory';
 import { getShapeBounds, hitTestShape } from '../shape.geometry.util';
 
 describe('getShapeBounds', () => {
@@ -14,6 +14,12 @@ describe('getShapeBounds', () => {
     const ellipse = createEllipse({ id: 'e', x: 0, y: 0, width: 30, height: 40 });
 
     expect(getShapeBounds(ellipse)).toEqual({ x: 0, y: 0, width: 30, height: 40 });
+  });
+
+  it('returns the box geometry directly for a text shape', () => {
+    const text = createText({ id: 't', x: 4, y: 8, width: 120, height: 24 });
+
+    expect(getShapeBounds(text)).toEqual({ x: 4, y: 8, width: 120, height: 24 });
   });
 
   it('normalizes a line whose end precedes its start', () => {
@@ -35,6 +41,13 @@ describe('hitTestShape', () => {
 
     expect(hitTestShape(rect, { x: 50, y: 50 }, 0)).toBe(true);
     expect(hitTestShape(rect, { x: 150, y: 50 }, 0)).toBe(false);
+  });
+
+  it('hits anywhere inside a text shape box', () => {
+    const text = createText({ id: 't', x: 0, y: 0, width: 100, height: 40 });
+
+    expect(hitTestShape(text, { x: 90, y: 5 }, 0)).toBe(true);
+    expect(hitTestShape(text, { x: 120, y: 5 }, 0)).toBe(false);
   });
 
   it('hits inside an ellipse but misses its bounding-box corner', () => {
