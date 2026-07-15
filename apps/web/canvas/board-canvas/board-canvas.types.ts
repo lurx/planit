@@ -1,7 +1,8 @@
-import type { BoardDoc, Camera } from '@planit/shared';
+import type { BoardDoc } from '@planit/shared';
+
+import type { ToolId } from '../tools';
 
 export type BoardCanvasProps = {
   board: BoardDoc;
-  /** Defaults to `DEFAULT_CAMERA`; pan/zoom interaction arrives in T3.1. */
-  camera?: Camera;
+  tool: ToolId;
 };

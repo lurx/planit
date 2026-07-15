@@ -3,12 +3,12 @@ import { getShapeBounds, hitTestShape, toCanvasTransform } from '@planit/shared'
 
 import {
   ARROWHEAD_ANGLE,
-  ARROWHEAD_LENGTH_PX,
+  ARROWHEAD_LENGTH,
   SHAPE_FILL_STYLE,
   SHAPE_FONT_FAMILY,
-  SHAPE_FONT_SIZE_PX,
+  SHAPE_FONT_SIZE,
   SHAPE_STROKE_STYLE,
-  SHAPE_STROKE_WIDTH_PX,
+  SHAPE_STROKE_WIDTH,
   SHAPE_TEXT_COLOR,
 } from './canvas-2d.renderer.constants';
 import type { Canvas2DContext, Renderer, Viewport } from './renderer.types';
@@ -41,11 +41,11 @@ export class Canvas2DRenderer implements Renderer {
       transform.f * dpr,
     );
 
-    // Px styling stays visually constant by dividing out the zoom (DPR cancels via the matrix).
-    ctx.lineWidth = SHAPE_STROKE_WIDTH_PX / camera.zoom;
+    // World-space stroke width: scales with the camera like the shapes it outlines.
+    ctx.lineWidth = SHAPE_STROKE_WIDTH;
 
     for (const shape of shapes) {
-      this.drawShape(shape, camera);
+      this.drawShape(shape);
     }
   }
 
@@ -60,7 +60,7 @@ export class Canvas2DRenderer implements Renderer {
     return null;
   }
 
-  private drawShape(shape: Shape, camera: Camera): void {
+  private drawShape(shape: Shape): void {
     switch (shape.type) {
       case 'rect':
         this.drawRect(shape);
@@ -72,10 +72,10 @@ export class Canvas2DRenderer implements Renderer {
         this.drawSegment(shape);
         break;
       case 'arrow':
-        this.drawArrow(shape, camera);
+        this.drawArrow(shape);
         break;
     }
-    this.drawText(shape, camera);
+    this.drawText(shape);
   }
 
   private drawRect(shape: BoxShape): void {
@@ -103,12 +103,12 @@ export class Canvas2DRenderer implements Renderer {
     ctx.stroke();
   }
 
-  private drawArrow(shape: ArrowShape, camera: Camera): void {
+  private drawArrow(shape: ArrowShape): void {
     this.drawSegment(shape);
 
     const { ctx } = this;
     const angle = Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1);
-    const length = ARROWHEAD_LENGTH_PX / camera.zoom;
+    const length = ARROWHEAD_LENGTH;
 
     ctx.beginPath();
     ctx.moveTo(shape.x2, shape.y2);
@@ -124,7 +124,7 @@ export class Canvas2DRenderer implements Renderer {
     ctx.stroke();
   }
 
-  private drawText(shape: Shape, camera: Camera): void {
+  private drawText(shape: Shape): void {
     if (shape.text.length === 0) {
       return;
     }
@@ -132,7 +132,7 @@ export class Canvas2DRenderer implements Renderer {
     const { ctx } = this;
     const bounds = getShapeBounds(shape);
     ctx.fillStyle = SHAPE_TEXT_COLOR;
-    ctx.font = `${SHAPE_FONT_SIZE_PX / camera.zoom}px ${SHAPE_FONT_FAMILY}`;
+    ctx.font = `${SHAPE_FONT_SIZE}px ${SHAPE_FONT_FAMILY}`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(shape.text, bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);

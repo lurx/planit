@@ -4,15 +4,18 @@ import { BoardDoc, createArrow, createEllipse, createRect } from '@planit/shared
 import { useMemo } from 'react';
 
 import { BoardCanvas } from '@/canvas/board-canvas';
+import { useActiveTool } from '@/canvas/tools';
 
 import type { BoardPageProps } from './board-page.types';
 
 import styles from './board-page.module.scss';
 
 export function BoardPage({ boardId }: BoardPageProps) {
+  const { tool } = useActiveTool();
+
   const board = useMemo(() => {
     const doc = new BoardDoc();
-    // Temporary seed shapes so the canvas has something to show until creation tools (T3.2).
+    // Seed shapes so a fresh board isn't empty; draw more with the creation tools (R/O/L/A).
     doc.addShape(
       createRect({
         id: `${boardId}-rect`,
@@ -32,7 +35,7 @@ export function BoardPage({ boardId }: BoardPageProps) {
 
   return (
     <main className={styles.board} data-testid="board-page">
-      <BoardCanvas board={board} />
+      <BoardCanvas board={board} tool={tool} />
     </main>
   );
 }

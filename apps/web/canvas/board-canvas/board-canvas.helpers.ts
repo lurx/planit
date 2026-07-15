@@ -1,5 +1,11 @@
-import type { Camera, Rect } from '@planit/shared';
-import { screenToWorld, toCanvasTransform } from '@planit/shared';
+import type { Camera, Rect, Shape } from '@planit/shared';
+import {
+  getResizeHandles,
+  getShapeBounds,
+  RESIZE_HANDLE_POSITIONS,
+  screenToWorld,
+  toCanvasTransform,
+} from '@planit/shared';
 
 import type { Canvas2DContext, Viewport } from '../renderer';
 import {
@@ -7,6 +13,14 @@ import {
   GRID_LINE_STYLE,
   GRID_LINE_WIDTH_PX,
   GRID_SPACING_WORLD,
+  MARQUEE_FILL_STYLE,
+  MARQUEE_OUTLINE_STYLE,
+  MARQUEE_OUTLINE_WIDTH_PX,
+  RESIZE_HANDLE_FILL_STYLE,
+  RESIZE_HANDLE_SIZE_PX,
+  SELECTION_OUTLINE_STYLE,
+  SELECTION_OUTLINE_WIDTH_PX,
+  SELECTION_PADDING_PX,
 } from './board-canvas.constants';
 
 /** The world-space rectangle currently visible in a `width × height` (CSS px) viewport. */
@@ -44,12 +58,8 @@ export function syncCanvasSize(
 }
 
 /** Paint the background grid in world space on its own layer. */
-export function drawGrid(ctx: Canvas2DContext, camera: Camera, viewport: Viewport): void {
-  const { width, height, devicePixelRatio: dpr } = viewport;
-
-  ctx.setTransform(1, 0, 0, 1, 0, 0);
-  ctx.clearRect(0, 0, width * dpr, height * dpr);
-
+/** Install the camera transform (with DPR baked in) so subsequent draws work in world space. */
+function applyCameraTransform(ctx: Canvas2DContext, camera: Camera, dpr: number): void {
   const transform = toCanvasTransform(camera);
   ctx.setTransform(
     transform.a * dpr,
@@ -59,6 +69,14 @@ export function drawGrid(ctx: Canvas2DContext, camera: Camera, viewport: Viewpor
     transform.e * dpr,
     transform.f * dpr,
   );
+}
+
+export function drawGrid(ctx: Canvas2DContext, camera: Camera, viewport: Viewport): void {
+  const { width, height, devicePixelRatio: dpr } = viewport;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, width * dpr, height * dpr);
+  applyCameraTransform(ctx, camera, dpr);
 
   const world = getViewportWorldRect(camera, width, height);
   const startX = Math.floor(world.x / GRID_SPACING_WORLD) * GRID_SPACING_WORLD;
@@ -78,4 +96,70 @@ export function drawGrid(ctx: Canvas2DContext, camera: Camera, viewport: Viewpor
     ctx.lineTo(endX, y);
   }
   ctx.stroke();
+}
+
+/**
+ * Paint selection chrome on the overlay layer: a screen-constant outline around each selected
+ * shape plus the in-progress marquee. Layered on top of the overlay's preview pass, so it sets
+ * the camera transform without clearing (selection and drawing preview never coexist).
+ */
+export function drawSelectionOverlay(
+  ctx: Canvas2DContext,
+  camera: Camera,
+  viewport: Viewport,
+  selectedShapes: readonly Shape[],
+  marquee: Rect | null,
+  resizeTarget: Shape | null,
+): void {
+  if (selectedShapes.length === 0 && !marquee) {
+    return;
+  }
+  applyCameraTransform(ctx, camera, viewport.devicePixelRatio);
+
+  if (selectedShapes.length > 0) {
+    const padding = SELECTION_PADDING_PX / camera.zoom;
+    ctx.lineWidth = SELECTION_OUTLINE_WIDTH_PX / camera.zoom;
+    ctx.strokeStyle = SELECTION_OUTLINE_STYLE;
+    ctx.beginPath();
+    for (const shape of selectedShapes) {
+      const bounds = getShapeBounds(shape);
+      ctx.rect(
+        bounds.x - padding,
+        bounds.y - padding,
+        bounds.width + padding * 2,
+        bounds.height + padding * 2,
+      );
+    }
+    ctx.stroke();
+  }
+
+  if (resizeTarget) {
+    drawResizeHandles(ctx, camera, resizeTarget);
+  }
+
+  if (marquee) {
+    ctx.beginPath();
+    ctx.rect(marquee.x, marquee.y, marquee.width, marquee.height);
+    ctx.fillStyle = MARQUEE_FILL_STYLE;
+    ctx.fill();
+    ctx.lineWidth = MARQUEE_OUTLINE_WIDTH_PX / camera.zoom;
+    ctx.strokeStyle = MARQUEE_OUTLINE_STYLE;
+    ctx.stroke();
+  }
+}
+
+/** Paint the eight screen-constant resize handles around a shape's bounds. */
+function drawResizeHandles(ctx: Canvas2DContext, camera: Camera, shape: Shape): void {
+  const handleSize = RESIZE_HANDLE_SIZE_PX / camera.zoom;
+  const handles = getResizeHandles(getShapeBounds(shape), handleSize);
+  ctx.fillStyle = RESIZE_HANDLE_FILL_STYLE;
+  ctx.strokeStyle = SELECTION_OUTLINE_STYLE;
+  ctx.lineWidth = SELECTION_OUTLINE_WIDTH_PX / camera.zoom;
+  for (const position of RESIZE_HANDLE_POSITIONS) {
+    const handle = handles[position];
+    ctx.beginPath();
+    ctx.rect(handle.x, handle.y, handle.width, handle.height);
+    ctx.fill();
+    ctx.stroke();
+  }
 }

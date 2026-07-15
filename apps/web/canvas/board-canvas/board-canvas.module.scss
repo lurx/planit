@@ -3,6 +3,13 @@
   inline-size: 100%;
   block-size: 100%;
   overflow: hidden;
+  cursor: default;
+  touch-action: none;
+
+  // Drawing tools own the drag, so show a crosshair instead of the default select cursor.
+  &--drawing {
+    cursor: crosshair;
+  }
 }
 
 .board-canvas__layer {

@@ -25,7 +25,7 @@ describe('BoardCanvas', () => {
   });
 
   it('renders three stacked canvas layers', () => {
-    render(<BoardCanvas board={new BoardDoc()} />);
+    render(<BoardCanvas board={new BoardDoc()} tool="select" />);
 
     expect(screen.getByTestId('board-canvas-grid')).toBeInTheDocument();
     expect(screen.getByTestId('board-canvas-shapes')).toBeInTheDocument();
@@ -34,7 +34,7 @@ describe('BoardCanvas', () => {
 
   it('requests a frame when the board document changes', () => {
     const board = new BoardDoc();
-    render(<BoardCanvas board={board} />);
+    render(<BoardCanvas board={board} tool="select" />);
     // Drain the mount frame so the scheduler is idle, then watch for a new request.
     flushFrames();
     vi.mocked(window.requestAnimationFrame).mockClear();

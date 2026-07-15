@@ -3,7 +3,7 @@ import type { Camera } from '@planit/shared';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Canvas2DRenderer } from '../canvas-2d.renderer';
-import { SHAPE_STROKE_WIDTH_PX } from '../canvas-2d.renderer.constants';
+import { SHAPE_STROKE_WIDTH } from '../canvas-2d.renderer.constants';
 import type { Canvas2DContext, Viewport } from '../renderer.types';
 
 function createMockContext(): Canvas2DContext {
@@ -58,10 +58,10 @@ describe('Canvas2DRenderer.draw', () => {
     expect(vi.mocked(ctx.setTransform).mock.calls[1]).toEqual([4, 0, 0, 4, -40, -80]);
   });
 
-  it('keeps stroke width visually constant by dividing out zoom', () => {
+  it('uses a world-space stroke width that scales with the camera', () => {
     renderer.draw([], { x: 0, y: 0, zoom: 4 }, VIEWPORT);
 
-    expect(ctx.lineWidth).toBe(SHAPE_STROKE_WIDTH_PX / 4);
+    expect(ctx.lineWidth).toBe(SHAPE_STROKE_WIDTH);
   });
 
   it('draws a rect as a path', () => {
