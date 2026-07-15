@@ -1,4 +1,4 @@
-import { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL } from './shape.constants';
+import { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL, SHAPES } from './shape.constants';
 import type {
   ArrowShape,
   CreateBoxShapeInput,
@@ -11,7 +11,7 @@ import type {
 
 export function createRect(input: CreateBoxShapeInput): RectShape {
   return {
-    type: 'rect',
+    type: SHAPES.RECT,
     id: input.id,
     x: input.x,
     y: input.y,
@@ -23,7 +23,7 @@ export function createRect(input: CreateBoxShapeInput): RectShape {
 
 export function createEllipse(input: CreateBoxShapeInput): EllipseShape {
   return {
-    type: 'ellipse',
+    type: SHAPES.ELLIPSE,
     id: input.id,
     x: input.x,
     y: input.y,
@@ -35,7 +35,7 @@ export function createEllipse(input: CreateBoxShapeInput): EllipseShape {
 
 export function createText(input: CreateBoxShapeInput): TextShape {
   return {
-    type: 'text',
+    type: SHAPES.TEXT,
     id: input.id,
     x: input.x,
     y: input.y,
@@ -47,7 +47,7 @@ export function createText(input: CreateBoxShapeInput): TextShape {
 
 export function createLine(input: CreateSegmentShapeInput): LineShape {
   return {
-    type: 'line',
+    type: SHAPES.LINE,
     id: input.id,
     x1: input.x1,
     y1: input.y1,
@@ -59,7 +59,7 @@ export function createLine(input: CreateSegmentShapeInput): LineShape {
 
 export function createArrow(input: CreateSegmentShapeInput): ArrowShape {
   return {
-    type: 'arrow',
+    type: SHAPES.ARROW,
     id: input.id,
     x1: input.x1,
     y1: input.y1,

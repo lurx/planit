@@ -1,4 +1,4 @@
-import { getShapeBounds, hitTestShape, rectsIntersect } from '@planit/shared';
+import { getShapeBounds, hitTestShape, rectsIntersect, SHAPES } from '@planit/shared';
 import type { BoardDoc, Point, Rect, Shape, ShapePatch } from '@planit/shared';
 
 /** The topmost shape (last in z-order) hit by `point`, or `null` when the point hits nothing. */
@@ -35,7 +35,7 @@ export function rectFromPoints(a: Point, b: Point): Rect {
 
 /** A patch that translates `shape` by `(dx, dy)`, mapped onto its geometry family's fields. */
 export function moveShapePatch(shape: Shape, dx: number, dy: number): ShapePatch {
-  if (shape.type === 'line' || shape.type === 'arrow') {
+  if (shape.type === SHAPES.LINE || shape.type === SHAPES.ARROW) {
     return { x1: shape.x1 + dx, y1: shape.y1 + dy, x2: shape.x2 + dx, y2: shape.y2 + dy };
   }
   return { x: shape.x + dx, y: shape.y + dy };

@@ -1,16 +1,17 @@
 import type { Point, Rect } from '../geometry/geometry.types';
 import { pointInEllipse, pointInRect, pointNearSegment } from '../geometry/geometry.util';
+import { SHAPES } from './shape.constants';
 import type { Shape } from './shape.types';
 
 /** The axis-aligned bounding box of a shape, in world space. */
 export function getShapeBounds(shape: Shape): Rect {
   switch (shape.type) {
-    case 'rect':
-    case 'ellipse':
-    case 'text':
+    case SHAPES.RECT:
+    case SHAPES.ELLIPSE:
+    case SHAPES.TEXT:
       return { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
-    case 'line':
-    case 'arrow':
+    case SHAPES.LINE:
+    case SHAPES.ARROW:
       return {
         x: Math.min(shape.x1, shape.x2),
         y: Math.min(shape.y1, shape.y2),
@@ -26,13 +27,13 @@ export function getShapeBounds(shape: Shape): Rect {
  */
 export function hitTestShape(shape: Shape, point: Point, tolerance: number): boolean {
   switch (shape.type) {
-    case 'rect':
-    case 'text':
+    case SHAPES.RECT:
+    case SHAPES.TEXT:
       return pointInRect(point, getShapeBounds(shape));
-    case 'ellipse':
+    case SHAPES.ELLIPSE:
       return pointInEllipse(point, getShapeBounds(shape));
-    case 'line':
-    case 'arrow':
+    case SHAPES.LINE:
+    case SHAPES.ARROW:
       return pointNearSegment(
         point,
         { x: shape.x1, y: shape.y1 },

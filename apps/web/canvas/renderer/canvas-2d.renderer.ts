@@ -1,5 +1,5 @@
 import type { ArrowShape, BoxShape, Camera, Point, SegmentShape, Shape } from '@planit/shared';
-import { getShapeBounds, hitTestShape, toCanvasTransform } from '@planit/shared';
+import { getShapeBounds, hitTestShape, SHAPES, toCanvasTransform } from '@planit/shared';
 
 import {
   ARROWHEAD_ANGLE,
@@ -62,19 +62,19 @@ export class Canvas2DRenderer implements Renderer {
 
   private drawShape(shape: Shape): void {
     switch (shape.type) {
-      case 'rect':
+      case SHAPES.RECT:
         this.drawRect(shape);
         break;
-      case 'ellipse':
+      case SHAPES.ELLIPSE:
         this.drawEllipse(shape);
         break;
-      case 'line':
+      case SHAPES.LINE:
         this.drawSegment(shape);
         break;
-      case 'arrow':
+      case SHAPES.ARROW:
         this.drawArrow(shape);
         break;
-      case 'text':
+      case SHAPES.TEXT:
         // No outline — a text shape renders only its label below.
         break;
     }

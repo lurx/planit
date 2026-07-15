@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { SHAPES } from './shape.constants';
+
 /**
  * Zod schemas are the single source of truth for the shape domain. The TypeScript types in
  * `shape.types.ts` are derived from these via `z.infer`, so the wire format and the compile
@@ -31,24 +33,24 @@ const segmentGeometrySchema = z.object({
 
 export const rectShapeSchema = baseShapeSchema
   .extend(boxGeometrySchema.shape)
-  .extend({ type: z.literal('rect') });
+  .extend({ type: z.literal(SHAPES.RECT) });
 
 export const ellipseShapeSchema = baseShapeSchema
   .extend(boxGeometrySchema.shape)
-  .extend({ type: z.literal('ellipse') });
+  .extend({ type: z.literal(SHAPES.ELLIPSE) });
 
 /** A text shape is a box with no outline — only its `text` renders. */
 export const textShapeSchema = baseShapeSchema
   .extend(boxGeometrySchema.shape)
-  .extend({ type: z.literal('text') });
+  .extend({ type: z.literal(SHAPES.TEXT) });
 
 export const lineShapeSchema = baseShapeSchema
   .extend(segmentGeometrySchema.shape)
-  .extend({ type: z.literal('line') });
+  .extend({ type: z.literal(SHAPES.LINE) });
 
 export const arrowShapeSchema = baseShapeSchema
   .extend(segmentGeometrySchema.shape)
-  .extend({ type: z.literal('arrow') });
+  .extend({ type: z.literal(SHAPES.ARROW) });
 
 export const shapeSchema = z.discriminatedUnion('type', [
   rectShapeSchema,

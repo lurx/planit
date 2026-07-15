@@ -6,7 +6,7 @@ export {
   shapeSchema,
   textShapeSchema,
 } from './shape.schema';
-export { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL, SHAPE_TYPES } from './shape.constants';
+export { DEFAULT_SHAPE_TEXT, DEFAULT_TEXT_LABEL, SHAPES, SHAPE_TYPES } from './shape.constants';
 export { createArrow, createEllipse, createLine, createRect, createText } from './shape.factory';
 export { getShapeBounds, hitTestShape } from './shape.geometry.util';
 export { buildShapeQuadtree } from './shape.spatial.util';
