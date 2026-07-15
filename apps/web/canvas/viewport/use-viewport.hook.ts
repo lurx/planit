@@ -50,6 +50,10 @@ export function useViewport(
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      // Only presses on a canvas layer start a pan — never the toolbar or text editor on top.
+      if (!(event.target instanceof HTMLCanvasElement)) {
+        return;
+      }
       // Middle-button drag always pans; primary-button drag pans only when enabled (no drawing
       // or selection tool owns it). The middle button would otherwise trigger browser autoscroll.
       const isMiddleButtonPan = event.button === 1;

@@ -1,11 +1,19 @@
-import { createArrow, createEllipse, createLine, createRect } from '@planit/shared';
+import {
+  createArrow,
+  createEllipse,
+  createLine,
+  createRect,
+  createText,
+  SHAPES,
+} from '@planit/shared';
 import type { CreateBoxShapeInput, Point, Shape } from '@planit/shared';
 
+import { DRAW_TOOL_IDS } from './tools.constants';
 import type { DrawToolId, ToolId } from './tools.types';
 
-/** Narrow a tool to a drawing tool (everything except `select`). */
+/** Narrow a tool to a drawing tool (the shape-creating tools; not `select` or `pan`). */
 export function isDrawTool(tool: ToolId): tool is DrawToolId {
-  return tool !== 'select';
+  return DRAW_TOOL_IDS.has(tool);
 }
 
 /** Normalize two drag corners into a top-left origin with non-negative extents. */
@@ -25,13 +33,15 @@ function toBoxInput(start: Point, end: Point, id: string): CreateBoxShapeInput {
  */
 export function createShapeFromDrag(tool: DrawToolId, start: Point, end: Point, id: string): Shape {
   switch (tool) {
-    case 'rect':
+    case SHAPES.RECT:
       return createRect(toBoxInput(start, end, id));
-    case 'ellipse':
+    case SHAPES.ELLIPSE:
       return createEllipse(toBoxInput(start, end, id));
-    case 'line':
+    case SHAPES.TEXT:
+      return createText(toBoxInput(start, end, id));
+    case SHAPES.LINE:
       return createLine({ id, x1: start.x, y1: start.y, x2: end.x, y2: end.y });
-    case 'arrow':
+    case SHAPES.ARROW:
       return createArrow({ id, x1: start.x, y1: start.y, x2: end.x, y2: end.y });
   }
 }

@@ -1,11 +1,14 @@
-import type { Camera, Shape } from '@planit/shared';
+import type { Camera, Shape, ShapeType } from '@planit/shared';
 import type { RefObject } from 'react';
 
-/** The active interaction tool. `select` manipulates existing shapes; the rest draw new ones. */
-export type ToolId = 'select' | 'rect' | 'ellipse' | 'line' | 'arrow';
+/** The subset of tools that create shapes by dragging — one per shape kind. */
+export type DrawToolId = ShapeType;
 
-/** The subset of tools that create shapes by dragging. */
-export type DrawToolId = Exclude<ToolId, 'select'>;
+/**
+ * The active interaction tool. `select` manipulates existing shapes, `pan` navigates the canvas,
+ * and the rest ({@link DrawToolId}, one per shape kind) draw new shapes.
+ */
+export type ToolId = 'select' | 'pan' | DrawToolId;
 
 export type UseActiveToolResult = {
   tool: ToolId;

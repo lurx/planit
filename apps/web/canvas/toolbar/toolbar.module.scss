@@ -1,0 +1,89 @@
+.toolbar {
+  --toolbar-border: rgba(148, 163, 184, 0.18);
+  --toolbar-hover: rgba(148, 163, 184, 0.12);
+  --toolbar-gap: 0.25rem;
+  --toolbar-radius: 0.75rem;
+  --toolbar-button-size: 2.25rem;
+
+  position: absolute;
+  inset-block-start: 1rem;
+  inset-inline: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: var(--toolbar-gap);
+  inline-size: fit-content;
+  margin-inline: auto;
+  padding: var(--toolbar-gap);
+  border: 1px solid var(--toolbar-border);
+  border-radius: var(--toolbar-radius);
+  background: var(--color-surface);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: var(--toolbar-gap);
+}
+
+.toolbar__divider {
+  inline-size: 1px;
+  block-size: 1.5rem;
+  margin-inline: 0.125rem;
+  background: var(--toolbar-border);
+}
+
+.toolbar__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--toolbar-button-size);
+  block-size: var(--toolbar-button-size);
+  padding: 0;
+  border: none;
+  border-radius: calc(var(--toolbar-radius) - 0.25rem);
+  color: var(--color-text);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background 0.15s ease;
+
+  &:hover {
+    background: var(--toolbar-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+
+  &--active {
+    color: var(--color-bg);
+    background: var(--color-accent);
+
+    &:hover {
+      background: var(--color-accent);
+    }
+  }
+}
+
+.toolbar__icon {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.toolbar__readout {
+  min-inline-size: 3.25rem;
+  padding-inline: 0.25rem;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--color-text);
+}

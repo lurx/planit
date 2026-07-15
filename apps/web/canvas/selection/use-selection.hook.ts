@@ -107,8 +107,8 @@ export function useSelection({
     };
 
     const handlePointerDown = (event: PointerEvent) => {
-      // Ignore presses inside the inline text editor so clicking into it never moves the shape.
-      if (!event.isPrimary || event.button !== 0 || event.target instanceof HTMLTextAreaElement) {
+      // Only presses on a canvas layer select/move — never the toolbar or text editor on top.
+      if (!event.isPrimary || event.button !== 0 || !(event.target instanceof HTMLCanvasElement)) {
         return;
       }
       const world = toWorld(event.clientX, event.clientY);
